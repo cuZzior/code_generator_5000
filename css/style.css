@@ -1,0 +1,11 @@
+.main {
+    margin:0 auto;
+    width: 35%;
+}
+.result, .infoMessage .alert{
+    margin: 10px 0;
+}
+.jumbotron {
+    padding: 3%;
+    text-align: center;
+}
