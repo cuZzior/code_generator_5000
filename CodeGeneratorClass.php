@@ -2,6 +2,10 @@
 
 class CodeGeneratorClass
 {
+    const numberOfCodesMin = 1;
+    const numberOfCodesMax = 1000000;
+    const lengthOfCodeMin = 4;
+    const lengthOfCodeMax = 25;
     const serverFileDirectory = '/tmp/';
     const allowedCharacters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -32,28 +36,34 @@ class CodeGeneratorClass
      * Generate file with unique codes from array and save it on server
      */
     public function generateFileWithCodes() {
-        $this->generateCodesArray();
-        $this->codes = array_unique($this->codes);
-        $this->uniqueCodeCounter = count($this->codes);
-        if ($this->uniqueCodeCounter < $this->numberOfCodes) {
-            return $this->generateFileWithCodes();
+        if (self::checkInputValues(
+            'numberOfCodes', $this->numberOfCodes) && self::checkInputValues('lengthOfCode', $this->lengthOfCode)
+        ) {
+            $this->generateCodesArray();
+            $this->codes = array_unique($this->codes);
+            $this->uniqueCodeCounter = count($this->codes);
+            if ($this->uniqueCodeCounter < $this->numberOfCodes) {
+                return $this->generateFileWithCodes();
+            }
+            $file = $this->mode !== 'cli' ? self::generateFilePath($this->filename) : $this->filename;
+            if (!$handle = fopen($file, 'w')) {
+                echo "Cannot open file ({$this->filename})";
+                exit;
+            }
+            fwrite($handle, implode(PHP_EOL, $this->codes));
+            fclose($handle);
+            if ($this->mode === 'browser') {
+                echo json_encode(
+                    [
+                        'success' => true,
+                        'filename' => $this->filename
+                    ]
+                );
+            }
+            return true;
+        } else {
+            exit("Please input correct values.");
         }
-        $file = $this->mode !== 'cli' ? self::generateFilePath($this->filename) : $this->filename;
-        if (!$handle = fopen($file, 'w')) {
-            echo "Cannot open file ({$this->filename})";
-            exit;
-        }
-        fwrite($handle, implode(PHP_EOL, $this->codes));
-        fclose($handle);
-        if ($this->mode === 'browser') {
-            echo json_encode(
-                [
-                    'success' => true,
-                    'filename' => $this->filename
-                ]
-            );
-        }
-        return true;
     }
 
     /**
@@ -114,6 +124,28 @@ class CodeGeneratorClass
         } else {
             echo json_encode(["message" => "No such file or cannot be removed."]);
         }
+    }
+
+    /**
+     * Validate user input
+     * @param $type
+     * @param $value
+     * @return bool
+     */
+    public static function checkInputValues($type, $value) {
+        switch($type) {
+            case 'numberOfCodes':
+                $min = self::numberOfCodesMin;
+                $max = self::numberOfCodesMax;
+                break;
+            case 'lengthOfCode':
+                $min = self::lengthOfCodeMin;
+                $max = self::lengthOfCodeMax;
+                break;
+            default:
+                return false;
+        }
+        return ($min <= $value && $value <= $max);
     }
 
     /**

@@ -2,6 +2,14 @@
 ini_set('memory_limit', '256M');
 require 'CodeGeneratorClass.php';
 
+if ($_POST['checkInput']) {
+    echo json_encode(
+        CodeGeneratorClass::checkInputValues('numberOfCodes', $_POST['numberOfCodes']) &&
+        CodeGeneratorClass::checkInputValues('lengthOfCode', $_POST['lengthOfCode'])
+    );
+    exit();
+}
+
 if (isset($_POST['removeFile'])) {
     CodeGeneratorClass::removeFile($_POST['removeFile']);
     exit();
@@ -41,8 +49,8 @@ if ($_SERVER['argc'] > 1) {
     $man_message = "";
     $man_message .= "Usage: generateCodes.php [options]\n\n";
     $man_message .= "Options:\n";
-    $man_message .= "--numberOfCodes/-n\n";
-    $man_message .= "--lengthOfCode/-l\n";
+    $man_message .= "--numberOfCodes/-n  [1 - 1000000]\n";
+    $man_message .= "--lengthOfCode/-l [4 - 25]\n";
     $man_message .= "--file/-f\n";
     $man_message .= "Example:\n";
     $man_message .= "php generateCodes.php --numberOfCodes 100000 --lengthOfCode 10 --file /tmp/kody.txt\n";

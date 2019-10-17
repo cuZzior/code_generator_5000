@@ -12,19 +12,18 @@ $('document').ready(function(){
         if ($filenameToDownload.val() !== '') {
             $.post("generateCodes.php", {removeFile: $filenameToDownload.val()});
         }
-        if (
-            checkInputValues($numbers.attr('name'), parseInt($numbers.val())) &&
-            checkInputValues($length.attr('name'), parseInt($length.val())))
-        {
-            generateCodes();
-        } else {
-            $numbers.val('');
-            $length.val('');
-            $infoMessage.html(
-                '<div class="alert alert-danger" role="alert">Please input correct values.</div>'
-            );
+        $.post("generateCodes.php", {checkInput: true, numberOfCodes: parseInt($numbers.val()), lengthOfCode: parseInt($length.val())}, function (response) {
+            if (response === 'true') {
+                generateCodes();
+            } else {
+                $numbers.val('');
+                $length.val('');
+                $infoMessage.html(
+                    '<div class="alert alert-danger" role="alert">Please input correct values.</div>'
+                );
 
-        }
+            }
+        });
     });
 
     function generateCodes () {
@@ -47,23 +46,6 @@ $('document').ready(function(){
         $infoMessage.html(
             '<div class="alert alert-success" role="alert">File: ' + file + ' generated!<br>Click below to download.</div>'
         );
-    }
-
-    function checkInputValues(type, value) {
-        let min , max;
-        switch(type) {
-            case 'numberOfCodes':
-                min = 1;
-                max = 1000000;
-                break;
-            case 'lengthOfCode':
-                min = 3;
-                max = 25;
-                break;
-            default:
-                break;
-        }
-        return (min <= value && value <= max);
     }
 });
 
