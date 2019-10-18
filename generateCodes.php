@@ -2,7 +2,7 @@
 ini_set('memory_limit', '256M');
 require 'CodeGeneratorClass.php';
 
-if ($_POST['checkInput']) {
+if (isset($_POST['checkInput'])) {
     echo json_encode(
         CodeGeneratorClass::checkInputValues('numberOfCodes', $_POST['numberOfCodes']) &&
         CodeGeneratorClass::checkInputValues('lengthOfCode', $_POST['lengthOfCode'])
