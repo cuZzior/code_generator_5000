@@ -1,25 +1,27 @@
 <?php
+error_reporting(E_ALL);
 ini_set('memory_limit', '256M');
-require 'CodeGeneratorClass.php';
+use Controllers\CodeGeneratorController as CodeGenerator;
+use Classes\DisplayExceptionError;
+require __DIR__ . '/vendor/autoload.php';
 
-if ($_POST['checkInput']) {
+if (isset($_POST['checkInput'])) {
     echo json_encode(
-        CodeGeneratorClass::checkInputValues('numberOfCodes', $_POST['numberOfCodes']) &&
-        CodeGeneratorClass::checkInputValues('lengthOfCode', $_POST['lengthOfCode'])
+        CodeGenerator::checkInputValues('numberOfCodes', $_POST['numberOfCodes']) &&
+        CodeGenerator::checkInputValues('lengthOfCode', $_POST['lengthOfCode'])
     );
     exit();
 }
 
 if (isset($_POST['removeFile'])) {
-    CodeGeneratorClass::removeFile($_POST['removeFile']);
+    CodeGenerator::removeFile($_POST['removeFile']);
     exit();
 }
 
 if (isset($_POST['filename'])) {
-    CodeGeneratorClass::downloadFile($_POST['filename']);
+    CodeGenerator::downloadFile($_POST['filename']);
     exit();
 }
-
 if ($_SERVER['argc'] > 1) {
     $mode = 'cli';
     $args = getopt('n:l:f:', [
@@ -57,5 +59,14 @@ if ($_SERVER['argc'] > 1) {
     die($man_message);
 }
 
-$generator = new CodeGeneratorClass($numberOfCodes, $lengthOfCode, $filename, $mode);
-$generator->generateFileWithCodes();
+try {
+    $generator = new CodeGenerator($numberOfCodes, $lengthOfCode, $filename, $mode);
+    if ($generator->generateFileWithCodes() && $mode === 'browser') {
+        echo json_encode([
+            'success' => true,
+            'filename' => $filename
+        ]);
+    }
+} catch (LogicException $exception) {
+    DisplayExceptionError::displayErrorMessage($exception);
+}

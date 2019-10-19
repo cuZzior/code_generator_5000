@@ -1,0 +1,16 @@
+{
+    "name": "cuzzior/code_generator",
+    "description": "Unique code generator",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "ext-json": "*",
+        "squizlabs/php_codesniffer": "3.5.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "Classes\\": "classes/",
+            "Controllers\\": "controllers/"
+        }
+    }
+}
